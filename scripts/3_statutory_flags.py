@@ -7,7 +7,8 @@ env = env(context=dict(env.context, tracking_disable=True, mail_notrack=True))
 company = env.ref('base.main_company')
 company.write({
     'l10n_in_provident_fund': True, 'l10n_in_esic': True, 'l10n_in_pt': True, 'l10n_in_labour_welfare': True,
-    'l10n_in_epf_employer_id': 'TEST/EPF/0000001', 'l10n_in_esic_ip_number': 'TEST0000000001',
+    # Odoo checks: EPF employer id XX/XXX/1234567/000; company ESIC IP number exactly 17 digits (fictitious values)
+    'l10n_in_epf_employer_id': 'TS/TST/0000001/000', 'l10n_in_esic_ip_number': '99000000000000001',
     'l10n_in_pt_number': 'TEST-PT-0001', 'l10n_in_labour_identification_number': 'TEST-LWF-0001',
 })
 problems = []
