@@ -48,9 +48,9 @@ def leave_type(name, needs_alloc):
     if t:
         return t
     vals = {'name': name, 'company_id': company.id}
-    f = env['hr.leave.type']._fields.get('requires_allocation')
-    if f is not None:
-        vals['requires_allocation'] = (('yes' if needs_alloc else 'no') if f.type == 'selection' else needs_alloc)
+    f = env['hr.leave.type'].fields_get(['requires_allocation']).get('requires_allocation')
+    if f:
+        vals['requires_allocation'] = (('yes' if needs_alloc else 'no') if f['type'] == 'selection' else needs_alloc)
     return env['hr.leave.type'].create(vals)
 
 LT = {n: leave_type(n, a) for n, a in (('Earned Leave', True), ('Casual Leave', True), ('Sick Leave', True), ('On Duty', False), ('Unpaid', False))}
@@ -76,6 +76,7 @@ in_fields = sorted(f for f in EMP._fields if f.startswith('l10n_in'))
 print('India employee fields available:', in_fields)
 
 bank = env['res.bank'].search([('bic', '=', 'SBIN0000001')], limit=1) or env['res.bank'].create({'name': 'State Bank of India (TEST)', 'bic': 'SBIN0000001'})
+EMP_TYPES = [x for x, _ in EMP.fields_get(['employee_type'])['employee_type']['selection']]
 rows = []
 for k, dept in enumerate(plan, 1):
     staff = dept in ('Admin & HR', 'Accounts') or k in (1, 8)
@@ -88,7 +89,7 @@ for k, dept in enumerate(plan, 1):
     vals = {
         'name': name, 'company_id': company.id, 'department_id': D[dept].id,
         'job_title': 'Supervisor' if k in (1, 8) else random.choice(jobs[dept]),
-        'employee_type': 'employee' if staff else ('worker' if 'worker' in dict(EMP._fields['employee_type'].selection) else 'employee'),
+        'employee_type': 'employee' if staff else ('worker' if 'worker' in EMP_TYPES else 'employee'),
         'mobile_phone': f'90000{k:05d}', 'barcode': badge, 'pin': f'{k:04d}',
         'resource_calendar_id': CAL[shift].id,
         'birthday': dt.date(1975 + k % 25, 1 + k % 12, 1 + k % 27),
