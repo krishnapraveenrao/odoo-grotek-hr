@@ -36,7 +36,7 @@ for e in workers:
                 if s.state != 'draft':
                     s.action_payslip_draft()
             e.version_id.write({'work_entry_source': 'attendance'})
-            e.version_id.generate_work_entries(start, stop, force=True)
+            e.version_id.generate_work_entries(d1, d2, force=True)  # Odoo 19 asserts plain dates
             for s in slips:
                 s.compute_sheet()
                 s.action_payslip_done()
