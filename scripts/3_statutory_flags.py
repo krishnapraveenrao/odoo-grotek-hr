@@ -23,29 +23,29 @@ for e in emps:
         problems.append(f'{e.name}: flags ({ex})')
 
 d1 = dt.date(2026, 9, 1)
+env.cr.commit()  # keep the flags even if a payslip below fails
 Slip = env['hr.payslip']
 redone = 0
 for e in emps:
     try:
-        old = Slip.search([('employee_id', '=', e.id), ('date_from', '=', d1)])
-        for s in old:
-            for m in ('action_payslip_cancel', 'action_payslip_draft'):
-                if hasattr(s, m) and s.state != 'draft':
-                    try:
-                        getattr(s, m)()
-                    except Exception:
-                        pass
-        old.filtered(lambda s: s.state in ('draft', 'cancel')).unlink()
-        slip = Slip.create({'employee_id': e.id, 'date_from': d1, 'date_to': dt.date(2026, 9, 30), 'name': f'Salary Slip - {e.name} - September 2026'})
-        slip.compute_sheet()
-        slip.action_payslip_done()
-        redone += 1
+        with env.cr.savepoint():
+            for s in Slip.search([('employee_id', '=', e.id), ('date_from', '=', d1)]):
+                if s.state != 'draft':
+                    s.action_payslip_cancel()
+                if s.state != 'draft':
+                    s.action_payslip_draft()
+                s.compute_sheet()
+                s.action_payslip_done()
+                redone += 1
     except Exception as ex:
-        problems.append(f'{e.name}: payslip ({ex})')
+        problems.append(f'{e.name}: payslip ({type(ex).__name__}: {ex})')
 env.cr.commit()
-codes = env['hr.payslip.line'].read_group([('slip_id.date_from', '=', d1)], ['code', 'name', 'total:sum'], ['code', 'name'], lazy=False)
+totals = {}
+for l in env['hr.payslip.line'].search([('slip_id.date_from', '=', d1)]):
+    k = (l.code, l.name)
+    totals[k] = totals.get(k, 0) + l.total
 print('STEP 3 DONE: %d payslips recomputed' % redone)
-for c in sorted(codes, key=lambda c: c['code']):
-    print('  code %-12s %-40s %12.2f' % (c['code'], c['name'], c['total']))
-for p in problems:
+for (code, name), t in sorted(totals.items()):
+    print('  code %-12s %-40s %12.2f' % (code, name, t))
+for p in problems[:10]:
     print('  PROBLEM:', p)
