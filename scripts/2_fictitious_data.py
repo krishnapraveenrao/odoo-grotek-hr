@@ -99,9 +99,11 @@ for k, dept in enumerate(plan, 1):
     for f, v in (('l10n_in_uan', f'9000000{k:05d}'), ('l10n_in_pan', f'TESPT{k:04d}A'), ('l10n_in_esic_number', f'90000{k:05d}' if gross <= 21000 else False)):
         if f in EMP._fields:
             vals[f] = v
-    emp = emp or EMP.create(vals)
-    if emp and emp.barcode == badge:
-        emp.write({x: y for x, y in vals.items() if x != 'name'} | {'name': name})
+    # Odoo's hr_skills adds keys to the dict given to create(), so always pass copies.
+    if emp:
+        emp.write(dict(vals))
+    else:
+        emp = EMP.create(dict(vals))
     joined = dt.date(2015 + k % 11, 1 + (k * 5) % 12, 1 + (k * 3) % 27)
     vver = {'wage': gross, 'contract_date_start': joined}
     if struct_type:
