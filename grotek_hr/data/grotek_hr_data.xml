@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Comp-off settings (old HRMS values). Change them in Settings > Technical > System Parameters. -->
+    <data noupdate="1">
+        <record id="param_comp_off_full_day_hours" model="ir.config_parameter">
+            <field name="key">grotek_hr.comp_off_full_day_hours</field>
+            <field name="value">7.5</field>
+        </record>
+        <record id="param_comp_off_half_day_hours" model="ir.config_parameter">
+            <field name="key">grotek_hr.comp_off_half_day_hours</field>
+            <field name="value">0</field>
+        </record>
+        <record id="param_comp_off_valid_days" model="ir.config_parameter">
+            <field name="key">grotek_hr.comp_off_valid_days</field>
+            <field name="value">30</field>
+        </record>
+        <record id="param_comp_off_claim_window_days" model="ir.config_parameter">
+            <field name="key">grotek_hr.comp_off_claim_window_days</field>
+            <field name="value">31</field>
+        </record>
+    </data>
+
+    <record id="cron_shift_change_apply" model="ir.cron">
+        <field name="name">Grotek HR: apply and end shift changes</field>
+        <field name="model_id" ref="model_grotek_shift_change"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_apply_due()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+    <record id="cron_extra_attendance_detect" model="ir.cron">
+        <field name="name">Grotek HR: find work on weekly offs and holidays (comp-off)</field>
+        <field name="model_id" ref="model_grotek_extra_attendance"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_detect()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

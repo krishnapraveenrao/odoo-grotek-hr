@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_grotek_hr_root" name="Shifts &amp; OD" parent="hr.menu_hr_root" sequence="80"/>
+    <menuitem id="menu_grotek_shift_change" name="Shift changes" parent="menu_grotek_hr_root"
+              action="shift_change_action" sequence="10" groups="hr.group_hr_user"/>
+    <menuitem id="menu_grotek_od_attendance" name="OD attendance" parent="menu_grotek_hr_root"
+              action="od_attendance_action" sequence="20"/>
+    <menuitem id="menu_grotek_extra_attendance" name="Extra attendance (comp-off)" parent="menu_grotek_hr_root"
+              action="extra_attendance_action" sequence="30"/>
+</odoo>

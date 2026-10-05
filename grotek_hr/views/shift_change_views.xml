@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="shift_change_view_list" model="ir.ui.view">
+        <field name="name">grotek.shift.change.list</field>
+        <field name="model">grotek.shift.change</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state in ('ended', 'cancelled')" decoration-success="state == 'applied'">
+                <field name="employee_id"/>
+                <field name="department_id" optional="show"/>
+                <field name="calendar_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="previous_calendar_id" optional="hide"/>
+                <field name="remark" optional="hide"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="shift_change_view_form" model="ir.ui.view">
+        <field name="name">grotek.shift.change.form</field>
+        <field name="model">grotek.shift.change</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_schedule" type="object" string="Schedule" class="btn-primary"
+                            invisible="state != 'draft'" groups="hr.group_hr_user"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('scheduled', 'applied')" groups="hr.group_hr_user"/>
+                    <button name="action_draft" type="object" string="Back to draft"
+                            invisible="state != 'cancelled'" groups="hr.group_hr_user"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,applied,ended"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="calendar_id" readonly="state != 'draft'"/>
+                            <field name="previous_calendar_id" invisible="not previous_calendar_id"/>
+                        </group>
+                        <group>
+                            <field name="date_from" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="date_to" readonly="state in ('ended', 'cancelled')"/>
+                            <field name="approved_by_id" invisible="not approved_by_id"/>
+                        </group>
+                    </group>
+                    <field name="remark" placeholder="Remark"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="shift_change_view_search" model="ir.ui.view">
+        <field name="name">grotek.shift.change.search</field>
+        <field name="model">grotek.shift.change</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <field name="calendar_id"/>
+                <filter name="current" string="Scheduled or applied" domain="[('state', 'in', ('scheduled', 'applied'))]"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <group>
+                    <filter name="by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="by_shift" string="New shift" context="{'group_by': 'calendar_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="shift_change_action" model="ir.actions.act_window">
+        <field name="name">Shift changes</field>
+        <field name="res_model">grotek.shift.change</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_current': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Give an employee a new shift from a date</p>
+            <p>Schedule it and it is applied on its From date; with a To date, the shift before comes back the day after.
+               For many changes at once, import them from Excel.</p>
+        </field>
+    </record>
+</odoo>
