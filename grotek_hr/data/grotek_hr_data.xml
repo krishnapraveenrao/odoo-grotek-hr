@@ -18,6 +18,10 @@
             <field name="key">grotek_hr.comp_off_claim_window_days</field>
             <field name="value">31</field>
         </record>
+        <record id="param_web_app_url" model="ir.config_parameter">
+            <field name="key">grotek_hr.web_app_url</field>
+            <field name="value">http://52.66.90.251:4000</field>
+        </record>
     </data>
 
     <record id="cron_shift_change_apply" model="ir.cron">

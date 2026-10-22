@@ -31,6 +31,12 @@ add-on (qltc-in/qltc-sapb1-web-app, addons/hr, #390):
         'views/extra_attendance_views.xml',
         'views/grotek_hr_menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'grotek_hr/static/src/back_to_web_app/back_to_web_app.js',
+            'grotek_hr/static/src/back_to_web_app/back_to_web_app.xml',
+        ],
+    },
     'installable': True,
     'application': False,
 }
