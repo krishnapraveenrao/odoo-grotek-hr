@@ -23,3 +23,12 @@ Comp-off follows the old HRMS (Bharath's decision, 5 Oct 2026): the Comp Off tim
 Settings (Settings > Technical > System Parameters): `grotek_hr.comp_off_full_day_hours` (7.5), `grotek_hr.comp_off_half_day_hours` (0 = no half days), `grotek_hr.comp_off_valid_days` (30), `grotek_hr.comp_off_claim_window_days` (31), and optionally `grotek_hr.comp_off_leave_type_id`.
 
 Shift change writes the employee's Working Hours (in Odoo 19, the current version's). Tests: `grotek_hr/tests` (run by the Odoo.sh branch build).
+
+## Payroll fixes and setup steps (22 Oct 2026)
+
+Found in the full-cycle test on the Grotek prototype. Rule changes are in the module (`grotek_hr/data/grotek_hr_payroll_fixes.xml`); the rest is database data with no external id, so it is a **setup step for each new database** (prototype done 22 Oct; redo on the real database):
+
+1. **PF** (module): fixed-amount PF is 12% of the lesser of BASIC and the 15,000 ceiling, so a fixed 1,800 employee is no longer charged 1,871. Overtime still counts in BASIC (open).
+2. **Public holidays** (Time Off > Configuration > Public Holidays): every holiday needs a **Work Entry Type**; set Paid Time Off. A holiday without one makes that day a work-entry conflict for every employee and blocks payslips.
+3. **Time-off types** (Time Off > Configuration > Time Off Types): every type needs a **Work Entry Type**. Used on the prototype: Casual Leave and Earned Leave = Paid Time Off, Sick Leave = Sick Time Off, On Duty = Attendance, UAT Leave = Generic Time Off. An approved leave of a type without one makes a typeless work entry (conflict).
+4. After 2 and 3, work entries already generated without a type must be corrected (set the type, or delete and generate again); a check: Payroll > Work Entries filtered on conflicts must be empty before payslips.

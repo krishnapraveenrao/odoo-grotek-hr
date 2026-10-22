@@ -25,6 +25,7 @@ add-on (qltc-in/qltc-sapb1-web-app, addons/hr, #390):
         'security/grotek_hr_security.xml',
         'security/ir.model.access.csv',
         'data/grotek_hr_data.xml',
+        'data/grotek_hr_payroll_fixes.xml',
         'views/hr_employee_views.xml',
         'views/shift_change_views.xml',
         'views/od_attendance_views.xml',

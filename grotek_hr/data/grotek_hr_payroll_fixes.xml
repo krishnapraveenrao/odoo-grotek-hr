@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        PF fix (found in the 22 Oct 2026 full-cycle test): the standard India PF rule charges
+        BASIC x the employee's stored percentage, and BASIC includes overtime days, so a "fixed 1,800"
+        employee was charged 1,871 and the PF ECR line is rejected by EPFO (not 12% of the 15,000 ceiling).
+        New rule, for a fixed-amount employee: the statutory rate on the lesser of BASIC and the ceiling
+        (parameters l10n_in_pf_percent 12% and l10n_in_pf_amount 15,000) = 1,800 at or above the ceiling,
+        12% of basic below it (the existing 1,152, 1,267.20 ... amounts). A non-fixed employee keeps the old
+        behaviour. Same for the employer share. Applied on every module update (not noupdate).
+        Open item left as it is: BASIC still counts overtime days, so below the ceiling PF follows it.
+    -->
+    <data>
+        <record id="l10n_in_hr_payroll.hr_salary_rule_pf_with_pf" model="hr.salary.rule">
+            <field name="amount_python_compute">ceiling = payslip._rule_parameter('l10n_in_pf_amount')
+if version.l10n_in_pf_employee_type == 'fixed':
+    result = -min(categories['BASIC'], ceiling)
+    result_rate = payslip._rule_parameter('l10n_in_pf_percent') * 100
+else:
+    result = -categories['BASIC']
+    result_rate = version.l10n_in_pf_employee_percentage * 100
+</field>
+        </record>
+        <record id="l10n_in_hr_payroll.hr_salary_rule_pfe_with_pf" model="hr.salary.rule">
+            <field name="amount_python_compute">ceiling = payslip._rule_parameter('l10n_in_pf_amount')
+if version.l10n_in_pf_employer_type == 'fixed':
+    result = -min(categories['BASIC'], ceiling)
+    result_rate = payslip._rule_parameter('l10n_in_pf_percent') * 100
+else:
+    result = -categories['BASIC']
+    result_rate = version.l10n_in_pf_employer_percentage * 100
+</field>
+        </record>
+    </data>
+</odoo>
