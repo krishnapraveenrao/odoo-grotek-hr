@@ -13,6 +13,10 @@ export class BackToWebApp extends Component {
     setup() {
         this.state = useState({ url: "" });
         onWillStart(async () => {
+            // Framed inside a 2608 tab: the tab strip is the way back, so no button (DT notes 67).
+            if (window.self !== window.top) {
+                return;
+            }
             try {
                 const response = await fetch("/grotek_hr/web_app_url", { credentials: "same-origin" });
                 this.state.url = response.ok ? (await response.text()).trim() : "";
