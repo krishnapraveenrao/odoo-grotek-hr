@@ -32,3 +32,8 @@ class TestEmbed(HttpCase):
         r = self.url_open('/odoo')
         self.assertIsNone(r.headers.get('X-Frame-Options'))
         self.assertIn('https://app.example.in', r.headers.get('Content-Security-Policy', ''))
+
+    def test_origins_route_lists_valid_origins(self):
+        self._set('https://app.example.in http://bad.example.in https://ok.example.in')
+        r = self.url_open('/grotek_embed/origins')
+        self.assertEqual(r.json(), ['https://app.example.in', 'https://ok.example.in'])

@@ -33,3 +33,13 @@ class GrotekEmbedHome(Home):
     @http.route()
     def web_client(self, *args, **kw):
         return allow_framing(super().web_client(*args, **kw))
+
+
+class GrotekEmbedOrigins(http.Controller):
+
+    @http.route('/grotek_embed/origins', type='http', auth='none', methods=['GET'], csrf=False)
+    def origins(self):
+        """The 2608 origins named in the system parameter (the same list as the frame-ancestors header)."""
+        import json
+        return request.make_response(
+            json.dumps(allowed_frame_ancestors()), headers=[('Content-Type', 'application/json')])
