@@ -20,7 +20,7 @@ add-on (qltc-in/qltc-sapb1-web-app, addons/hr, #390):
     'category': 'Human Resources',
     'author': 'Qltc (Quantum Leap Trainers and Consultants)',
     'license': 'LGPL-3',
-    'depends': ['hr', 'hr_attendance', 'hr_holidays', 'resource', 'mail'],
+    'depends': ['hr', 'hr_attendance', 'hr_holidays', 'resource', 'mail', 'hr_payroll', 'l10n_in_hr_payroll'],
     'data': [
         'security/grotek_hr_security.xml',
         'security/ir.model.access.csv',
