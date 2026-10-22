@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- 2608 hosts allowed to frame Odoo (space-separated https origins). Edit later in
+         Settings > Technical > System Parameters; noupdate keeps the edit on module update. -->
+    <record id="param_frame_ancestors" model="ir.config_parameter">
+        <field name="key">grotek_embed.frame_ancestors</field>
+        <field name="value">https://groteksap-dev.qltc.in</field>
+    </record>
+</odoo>
