@@ -3,3 +3,5 @@ __pycache__/
 *.xlsx
 *.csv
 .env
+# Module access rights are code, not data exports
+!*/security/ir.model.access.csv
