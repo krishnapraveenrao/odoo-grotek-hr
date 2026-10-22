@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="grotek_hr.BackToWebApp">
+        <a t-if="state.url" class="btn btn-sm btn-primary align-self-center mx-2" t-att-href="state.url"
+           title="Back to the SAP Business One web app">&#8592; Web app</a>
+    </t>
+</templates>

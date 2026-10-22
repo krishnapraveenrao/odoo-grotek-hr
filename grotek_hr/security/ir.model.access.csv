@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_shift_change_user,shift change user,model_grotek_shift_change,base.group_user,1,0,0,0
+access_shift_change_hr,shift change hr,model_grotek_shift_change,hr.group_hr_user,1,1,1,1
+access_od_attendance_user,od attendance user,model_grotek_od_attendance,base.group_user,1,1,1,1
+access_od_attendance_hr,od attendance hr,model_grotek_od_attendance,hr.group_hr_user,1,1,1,1
+access_extra_attendance_user,extra attendance user,model_grotek_extra_attendance,base.group_user,1,1,0,0
+access_extra_attendance_hr,extra attendance hr,model_grotek_extra_attendance,hr.group_hr_user,1,1,1,1

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="extra_attendance_view_list" model="ir.ui.view">
+        <field name="name">grotek.extra.attendance.list</field>
+        <field name="model">grotek.extra.attendance</field>
+        <field name="arch" type="xml">
+            <list decoration-muted="state == 'rejected'" decoration-success="state == 'allocated'">
+                <field name="employee_id"/>
+                <field name="manager_id" optional="show"/>
+                <field name="date"/>
+                <field name="day_type"/>
+                <field name="hours" widget="float_time"/>
+                <field name="comp_off_days"/>
+                <field name="state" widget="badge"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="extra_attendance_view_form" model="ir.ui.view">
+        <field name="name">grotek.extra.attendance.form</field>
+        <field name="model">grotek.extra.attendance</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_approve" type="object" string="Give comp-off" class="btn-primary"
+                            invisible="state != 'pending'"/>
+                    <button name="action_reject" type="object" string="Reject" invisible="state != 'pending'"/>
+                    <button name="action_reset" type="object" string="Reopen" invisible="state != 'rejected'"
+                            groups="hr.group_hr_user"/>
+                    <field name="state" widget="statusbar" statusbar_visible="pending,allocated"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="1"/>
+                            <field name="manager_id"/>
+                            <field name="date" readonly="1"/>
+                            <field name="day_type" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="hours" widget="float_time" readonly="1"/>
+                            <field name="comp_off_days" readonly="state != 'pending'"/>
+                            <field name="allocation_id" invisible="not allocation_id"/>
+                            <field name="approved_by_id" invisible="not approved_by_id"/>
+                        </group>
+                    </group>
+                    <field name="remark" placeholder="Remark"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="extra_attendance_view_search" model="ir.ui.view">
+        <field name="name">grotek.extra.attendance.search</field>
+        <field name="model">grotek.extra.attendance</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="employee_id"/>
+                <field name="manager_id"/>
+                <filter name="to_approve" string="To approve" domain="[('state', '=', 'pending')]"/>
+                <filter name="mine" string="Mine" domain="[('employee_id.user_id', '=', uid)]"/>
+                <filter name="my_team" string="My team" domain="[('employee_id.parent_id.user_id', '=', uid)]"/>
+                <separator/>
+                <filter name="weekly_off" string="Weekly off" domain="[('day_type', '=', 'weekly_off')]"/>
+                <filter name="holiday" string="Public holiday" domain="[('day_type', '=', 'holiday')]"/>
+                <group>
+                    <filter name="by_employee" string="Employee" context="{'group_by': 'employee_id'}"/>
+                    <filter name="by_month" string="Month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="extra_attendance_action" model="ir.actions.act_window">
+        <field name="name">Extra attendance (comp-off)</field>
+        <field name="res_model">grotek.extra.attendance</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_to_approve': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No work on weekly offs or holidays to approve</p>
+            <p>Every day, attendance on a weekly off or a public holiday is listed here.
+               The manager gives comp-off and a "Comp Off" allocation is created.</p>
+        </field>
+    </record>
+
+    <record id="action_server_extra_attendance_detect" model="ir.actions.server">
+        <field name="name">Find work on weekly offs and holidays now</field>
+        <field name="model_id" ref="model_grotek_extra_attendance"/>
+        <field name="binding_model_id" ref="model_grotek_extra_attendance"/>
+        <field name="binding_view_types">list</field>
+        <field name="group_ids" eval="[(4, ref('hr.group_hr_user'))]"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_detect()</field>
+    </record>
+</odoo>

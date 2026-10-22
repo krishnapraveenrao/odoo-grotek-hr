@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Employees see their own records and their team's (they are the Manager's user);
+         HR officers see all. Approve/reject rights are checked in Python as well. -->
+    <record id="rule_shift_change_own_team" model="ir.rule">
+        <field name="name">Shift change: own and team</field>
+        <field name="model_id" ref="model_grotek_shift_change"/>
+        <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_shift_change_hr" model="ir.rule">
+        <field name="name">Shift change: HR all</field>
+        <field name="model_id" ref="model_grotek_shift_change"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+    </record>
+
+    <record id="rule_od_attendance_own_team" model="ir.rule">
+        <field name="name">OD attendance: own and team</field>
+        <field name="model_id" ref="model_grotek_od_attendance"/>
+        <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_od_attendance_hr" model="ir.rule">
+        <field name="name">OD attendance: HR all</field>
+        <field name="model_id" ref="model_grotek_od_attendance"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+    </record>
+
+    <record id="rule_extra_attendance_own_team" model="ir.rule">
+        <field name="name">Extra attendance: own and team</field>
+        <field name="model_id" ref="model_grotek_extra_attendance"/>
+        <field name="domain_force">['|', ('employee_id.user_id', '=', user.id), ('employee_id.parent_id.user_id', '=', user.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+    <record id="rule_extra_attendance_hr" model="ir.rule">
+        <field name="name">Extra attendance: HR all</field>
+        <field name="model_id" ref="model_grotek_extra_attendance"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+    </record>
+
+    <record id="rule_shift_change_company" model="ir.rule">
+        <field name="name">Shift change: multi-company</field>
+        <field name="model_id" ref="model_grotek_shift_change"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_od_attendance_company" model="ir.rule">
+        <field name="name">OD attendance: multi-company</field>
+        <field name="model_id" ref="model_grotek_od_attendance"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="rule_extra_attendance_company" model="ir.rule">
+        <field name="name">Extra attendance: multi-company</field>
+        <field name="model_id" ref="model_grotek_extra_attendance"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>
