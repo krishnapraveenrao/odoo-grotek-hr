@@ -1,0 +1,51 @@
+# After every push/merge to main (Odoo.sh production), bump the version of each changed
+# module so Odoo.sh upgrades it. The bump commit is pushed with GITHUB_TOKEN, so it does not
+# start this workflow again; Odoo.sh builds it like any other push.
+name: Bump module versions
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/**'
+      - '*.md'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-module-versions
+  cancel-in-progress: false
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Bump versions of changed modules
+        id: bump
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "New branch, nothing to compare"; exit 0
+          fi
+          python .github/scripts/bump_versions.py "$BEFORE" "$AFTER" | tee bumped.txt
+          echo "count=$(grep -c . bumped.txt || true)" >> "$GITHUB_OUTPUT"
+
+      - name: Commit and push
+        if: steps.bump.outputs.count != '0' && steps.bump.outputs.count != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Bump module versions for Odoo.sh upgrade" -m "$(cat bumped.txt)"
+          git pull --rebase origin main
+          git push origin HEAD:main
