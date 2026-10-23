@@ -1,0 +1,61 @@
+# Every 10 minutes, bring new commits on main of qltc-in/odoo-grotek-hr (where the team merges
+# its PRs) into main here (Odoo.sh production). qltc-in is only read, never written.
+# The version bump is done here too: a push made with GITHUB_TOKEN does not start the
+# "Bump module versions" workflow, so it would otherwise be skipped.
+#
+# Needs the secret QLTC_IN_READ_TOKEN: a fine-grained token with Contents: Read-only on
+# qltc-in/odoo-grotek-hr.
+name: Sync from qltc-in
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-module-versions
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Merge new commits from qltc-in
+        env:
+          QLTC_IN_READ_TOKEN: ${{ secrets.QLTC_IN_READ_TOKEN }}
+        run: |
+          if [ -z "$QLTC_IN_READ_TOKEN" ]; then
+            echo "::error::Secret QLTC_IN_READ_TOKEN is not set (Settings > Secrets and variables > Actions)"; exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --quiet "https://x-access-token:${QLTC_IN_READ_TOKEN}@github.com/qltc-in/odoo-grotek-hr.git" main
+          if git merge-base --is-ancestor FETCH_HEAD HEAD; then
+            echo "Up to date with qltc-in"; exit 0
+          fi
+          BEFORE=$(git rev-parse HEAD)
+          UPSTREAM=$(git rev-parse --short FETCH_HEAD)
+          if ! git merge --no-edit -m "Sync from qltc-in/odoo-grotek-hr ($UPSTREAM)" FETCH_HEAD; then
+            if ! python .github/scripts/bump_versions.py --resolve; then
+              git merge --abort
+              echo "::error::Merge conflict with qltc-in main ($UPSTREAM); merge it by hand"; exit 1
+            fi
+            git commit --no-edit
+          fi
+          python .github/scripts/bump_versions.py "$BEFORE" HEAD | tee bumped.txt
+          if grep -q . bumped.txt; then
+            git commit -qam "Bump module versions for Odoo.sh upgrade" -m "$(cat bumped.txt)"
+          fi
+          git push origin HEAD:main

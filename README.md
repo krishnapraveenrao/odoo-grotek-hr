@@ -4,6 +4,7 @@ The Odoo.sh project for Grotek's HR and payroll (Odoo 19 Enterprise, India payro
 
 - Branch `main` = Odoo.sh production. Odoo apps and India payroll are installed from the Odoo.sh database; Grotek's own module is `grotek_hr` (below).
 - Deploying: merge a PR into `main` and Odoo.sh builds production by itself. A GitHub Action (`.github/workflows/bump-module-versions.yml`) then raises the `version` of every changed module, so Odoo.sh upgrades it; no need to bump it by hand (a version you bump yourself is left as it is).
+- Team PRs are merged in `qltc-in/odoo-grotek-hr`; the Action `.github/workflows/sync-from-qltc-in.yml` brings its `main` here every 10 minutes (it only reads qltc-in, using the secret `QLTC_IN_READ_TOKEN`). If it fails with a merge conflict, merge qltc-in `main` into this repo by hand.
 - Never commit employee data, salaries, API keys or passwords here. The web app's Odoo API key lives only in the server's settings / AWS Secrets Manager.
 - Decision: notes 05, H-P7 (3 Oct 2026), in `qltc-in/qltc-sapb1-web-app` - prototype with fictitious data first; real Grotek data only once the web app is served over HTTPS.
 - `grotek_embed/` (frame test, 22 Oct 2026): a small module that lets the web app (2608) show Odoo screens inside its own tabs, by naming the 2608 hosts as allowed frame parents (system parameter `grotek_embed.frame_ancestors`, https origins only). It must be on `main` (production) and installed from Apps (Update Apps List, then install) to take effect. Test address: `hr-test.qltc.in` (custom domain on production).
